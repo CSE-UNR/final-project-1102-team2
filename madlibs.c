@@ -7,10 +7,11 @@
 #define FILENAME_LENGTH_MAX 20
 
 //Function Prototypes(at least five)
-int stringLength(char[]);
+int stringLength(char []);
 int punctuationCheck(char);
-int openFile(FILE **fp, char *filename, char *mode);
-void display(char partsofSpeech);
+int openFile(FILE **, char *, char *);
+void display(char, char input[ROW_MAX/2][COLUMN_MAX], int *);
+void storeLines(char string[ROW_MAX][COLUMN_MAX], FILE *, int *);
 
 int main(){
 //declare variables
@@ -23,37 +24,31 @@ int main(){
     scanf("%s", filename);
     FILE *fp;
     if(openFile(&fp, filename, "r") == 1){
-        return 1; //errors in the program
+        return 1; //Errors in the program
     }
-//Store each line from the file, (string[even numbers or 0] = sentenses, string[even numbers] = 'A', 'V' or 'N')
-    while(fgets(string[row], sizeof(string[row]), fp) != NULL){
-        string[row][stringLength(string[row]) - 1] = '\0'; /*replace the newline character with the null character*/
-        row++;
-    }
+//Store each line from the file
+    storeLines(string, fp, &row);
     fclose(fp); //Close the file
-//Get user input
+//Get user input, Store values
     for(int index = 0; index < row/2; index++){
         switch(string[2 * index + 1][0]){
             case 'A':
-            display('A');
-            scanf("%s", input[index]);
+            display('A', input, &index);
             break;
             case 'N':
-            display('N');
-            scanf("%s", input[index]);
+            display('N', input, &index);
             break;
             case 'V':
-            display('V');
-            scanf("%s", input[index]);
+            display('V', input, &index);
             break;
             default:
-            display('0');
+            display('0', input, &index);
             return 1; //errors in the program
         }
     }
 //Display the sentences on the screen
-    printf("%s", string[0]); //No space at the beginning of the sentence
-    printf(" %s", input[0]); //first user input
+    printf("%s", string[0]); //Add no space at the beginning of the sentence
+    printf(" %s", input[0]); //The first user input
     for(int index = 1; index < row/2; index++){
         if(punctuationCheck(string[2 * index][0])){
             printf("%s", string[2 * index]); //Remove a space before punctuation
@@ -62,7 +57,11 @@ int main(){
         }
         printf(" %s", input[index]); //add the user input
     }
-    printf(" %s\n", string[row - 1]);
+    if(punctuationCheck(string[row - 1][0])){
+        printf("%s\n", string[row - 1]); //Remove a space before punctuation
+    }else{
+        printf(" %s\n", string[row - 1]); //add a space
+    }
     return 0; //program exectuted successfully
 }
 //Count the length of a string
@@ -93,19 +92,30 @@ int openFile(FILE **fp, char *filename, char *mode){
     return 0;
 }
 
-//Prompt users
-void display(char partsofSpeech){
+//Prompt users, Store values
+void display(char partsofSpeech, char input[ROW_MAX/2][COLUMN_MAX], int *index){
     switch(partsofSpeech){
         case 'A':
         printf("Please enter an adjective: ");
+        scanf("%s", input[*index]);
         break;
         case 'N':
         printf("Please enter a noun: ");
+        scanf("%s", input[*index]);
         break;
         case 'V':
         printf("Please enter a verb: ");
+        scanf("%s", input[*index]);
         break;
         default:
-        printf("No such part of speech in the file\n");
+        printf("No such part of speech in the file(do not leave an empty line in the txt file)\n"); //Suggest errors in the txt file
+    }
+}
+
+//Store each line from the file (string[even numbers or 0] = sentenses, string[even numbers] = 'A', 'V' or 'N')
+void storeLines(char string[ROW_MAX][COLUMN_MAX], FILE *fp, int *row){
+    while(fgets(string[*row], COLUMN_MAX, fp) != NULL){
+        string[*row][stringLength(string[*row]) - 1] = '\0'; /*replace the newline character with the null character*/
+        (*row)++;
     }
 }
